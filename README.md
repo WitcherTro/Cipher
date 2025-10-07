@@ -23,7 +23,7 @@ pip install -r requirements.txt
 To run the cipher decoding program, execute the following command:
 
 ```
-python src/main.py
+python run.py
 ```
 
 ## Contributing
