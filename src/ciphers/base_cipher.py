@@ -1,8 +1,14 @@
-class BaseCipher:
-    def encode(self, plaintext):
-        """Encode the given plaintext. This method should be overridden by subclasses."""
-        raise NotImplementedError("Subclasses must implement this method.")
+from abc import ABC, abstractmethod
 
-    def decode(self, ciphertext):
-        """Decode the given ciphertext. This method should be overridden by subclasses."""
-        raise NotImplementedError("Subclasses must implement this method.")
+class BaseCipher(ABC):
+    """Base class for all cipher implementations"""
+    
+    @abstractmethod
+    def encrypt(self, text: str) -> str:
+        """Encrypt the given text"""
+        pass
+    
+    @abstractmethod
+    def decrypt(self, text: str) -> str:
+        """Decrypt the given text"""
+        pass
