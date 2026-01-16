@@ -1,10 +1,16 @@
 from typing import Dict, Type
 from ciphers.base_cipher import BaseCipher
-from ciphers.caesar_cipher import CaesarCipher
+from ciphers.vigenere_cipher import VigenereCipher
+from ciphers.hill_cipher import HillCipher
+from ciphers.stream_cipher import StreamCipher
+from ciphers.rsa_cipher import RSACipher
 
 class CipherFactory:
     _ciphers: Dict[str, Type[BaseCipher]] = {
-        "caesar": CaesarCipher
+        "vigenere": VigenereCipher,
+        "hill": HillCipher,
+        "stream": StreamCipher,
+        "rsa": RSACipher
     }
 
     @classmethod

@@ -20,7 +20,29 @@ class FrequencyAnalyzer:
                 language = filename.split('.')[0].lower()
                 filepath = os.path.join(frequency_dir, filename)
                 with open(filepath, 'r') as file:
-                    self.frequencies[language] = json.load(file)
+                    raw_data = json.load(file)
+                    # Normalize to percentages (0-100)
+                    total = sum(raw_data.values())
+                    if total > 0:
+                        self.frequencies[language] = {
+                            k.upper(): (v / total * 100) for k, v in raw_data.items()
+                        }
+                    else:
+                        self.frequencies[language] = raw_data
+
+    def get_ordered_probabilities(self, language: Optional[str] = None) -> list[float]:
+        """Return a list of 26 probabilities (0.0-1.0) for A-Z"""
+        if language is None:
+            language = self.language
+        
+        freqs = self.frequencies.get(language, {})
+        probs = []
+        for i in range(26):
+            char = chr(ord('A') + i)
+            # stored freqs are 0-100
+            probs.append(freqs.get(char, 0.0) / 100.0)
+        return probs
+
 
     def set_language(self, language: str) -> None:
         """Change the analysis language"""

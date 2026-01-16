@@ -1,0 +1,28 @@
+--- ATTACK STARTED: 692943 ---
+  [+] CRACKED: shadow1.txt | kochlan4 | petkO (Category 1)
+  [+] CRACKED: shadow1.txt | krajciko | katkA (Category 1)
+  [+] CRACKED: shadow2.txt | sagan00 | maTusko (Category 1)
+  [+] CRACKED: shadow2.txt | kalous | adamKo (Category 1)
+  [+] CRACKED: shadow3.txt | glemba | maTusko (Category 1)
+  [+] CRACKED: shadow3.txt | szabo22 | petkO (Category 1)
+  [+] CRACKED: shadow3.txt | soukal | adamKo (Category 1)
+  [+] CRACKED: shadow4.txt | petran | leNka (Category 1)
+  [+] CRACKED: shadow4.txt | sagan00 | adamKo (Category 1)
+  [+] CRACKED: shadow4.txt | urban14 | kAtarina (Category 1)
+[Category 1] Found: 10 passwords. Time: 0.043267 s.
+  [+] CRACKED: shadow1.txt | matlon | ZH0n (Category 3)
+  [+] CRACKED: shadow2.txt | rychnavs | ZH0n (Category 3)
+  [+] CRACKED: shadow3.txt | visnovsl | ZH0n (Category 3)
+  [+] CRACKED: shadow1.txt | pallova | s7xG (Category 3)
+  [+] CRACKED: shadow2.txt | kontroso | Cl3I (Category 3)
+  [+] CRACKED: shadow3.txt | kmetik | ow2K (Category 3)
+  [+] CRACKED: shadow1.txt | brezani7 | e1VL (Category 3)
+  [+] CRACKED: shadow4.txt | stech | e1VL (Category 3)
+  Phase [Category 3 L:4] took: 25.244765 s.
+  [+] CRACKED: shadow3.txt | kristek2 | xyzabc (Category 2)
+  [+] CRACKED: shadow4.txt | paluch | xyzabc (Category 2)
+  [+] CRACKED: shadow1.txt | piecka | kjhgty (Category 2)
+  [+] CRACKED: shadow2.txt | kristek2 | kjhgty (Category 2)
+  [+] CRACKED: shadow3.txt | hajtinger | kjhgty (Category 2)
+  [+] CRACKED: shadow4.txt | franek17 | kjhgty (Category 2)
+  Phase [Category 2 L:6] took: 809.823550 s.
