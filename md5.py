@@ -7,7 +7,6 @@ import os
 import time
 import multiprocessing
 
-# --- Konfigurácia ---
 OUTPUT_FILE = "vysledky.txt"
 HEARTBEAT_INTERVAL = 60
 
@@ -56,8 +55,6 @@ def load_shadow_files(directory):
     return targets
 
 def get_category1_candidates():
-    """Expanded generator of Slovak names and diminutives with one uppercase letter rule."""
-    # Base calendar names
     base_names = [
         "alexander", "alexandra", "adam", "adela", "adrian", "adriana", "alica", "alenka", "alena", "andrea", "andrej",
         "anna", "anezka", "anton", "barbora", "beata", "benjamin", "berta", "blanka", "bohumil", "bohumir", "bozena",
@@ -83,7 +80,6 @@ def get_category1_candidates():
         "vladimir", "vladislav", "vlasta", "vojtech", "xenia", "zoltan", "zora", "zuzana", "zigmund", "zofia"
     ]
 
-    # Typical Slovak diminutive suffixes
     suffixes = ["ka", "ko", "ko", "icka", "ik", "uska", "ko", "ulo", "o", "usa", "inka"]
 
     all_words = set()
@@ -91,9 +87,6 @@ def get_category1_candidates():
         name = name.lower()
         all_words.add(name)
 
-        # Generate diminutives (very simplified)
-        # For each name, try appending suffix (e.g. zuz + ka)
-        # Taking name stem (first 3-4 letters) and appending suffixes
         stem = name[:3] if len(name) > 3 else name
         stem4 = name[:4] if len(name) > 4 else name
 
@@ -101,7 +94,6 @@ def get_category1_candidates():
             all_words.add(stem + sfx)
             all_words.add(stem4 + sfx)
 
-        # Add specific manually defined diminutives
         all_words.update([
             name + "ko", name + "ka", name + "ik",
             "misko", "ferko", "janko", "katka", "zuzka", "evka", "lucka", "petko",
@@ -110,14 +102,10 @@ def get_category1_candidates():
 
     final_candidates = set()
     for word in all_words:
-        # Remove diacritics just in case, if passwords were without them
-        # (in MD5 'á' is a different byte than 'a')
-        # Try version with diacritics and without it
         clean_word = word.replace('a','a').replace('c','c').replace('d','d').replace('e','e').replace('i','i').replace('l','l').replace('n','n').replace('o','o').replace('r','r').replace('s','s').replace('t','t').replace('u','u').replace('y','y').replace('z','z')
 
         for w in [word, clean_word]:
             final_candidates.add(w.lower())
-            # Exactly one uppercase letter anywhere
             for i in range(len(w)):
                 variant = w[:i] + w[i].upper() + w[i+1:]
                 final_candidates.add(variant)
@@ -125,7 +113,6 @@ def get_category1_candidates():
     return list(final_candidates)
 
 def check_all_files_satisfied(targets, category_label):
-    """Checks if every file has at least one password found for the given category."""
     all_files = set(t['file'] for t in targets)
     files_with_cat = set(t['file'] for t in targets if category_label in t['cats_found'])
     return all_files.issubset(files_with_cat)
@@ -135,8 +122,6 @@ def run_dictionary_attack(targets, candidates):
     start = time.time()
     category_label = "Category 1"
     for t in targets:
-        # If this file already has a password from Cat 1, we can (but don't have to) skip.
-        # For dictionary it is fast enough to go through everything.
         for cand in candidates:
             m = hashlib.md5(cand.encode('utf-8'))
             m.update(t['salt_bytes'])
@@ -148,7 +133,6 @@ def run_dictionary_attack(targets, candidates):
     log_result(f"Phase Category 1 duration: {time.time()-start:.2f}s")
 
 def run_generic_brute_force(targets, length, charset, category_label):
-    # First check if we haven't already met the condition from the previous length
     if check_all_files_satisfied(targets, category_label):
         print(f"\n[{category_label}] Condition (1 password/file) already met. Skipping length {length}.")
         return
@@ -183,7 +167,6 @@ def run_generic_brute_force(targets, length, charset, category_label):
                             t['cats_found'].add(category_label)
                             log_result(f"  [+] CRACKED {category_label}: {fname} | {login} | {password}")
 
-                    # KEY CHECK: Do we have at least one in each file?
                     if check_all_files_satisfied(targets, category_label):
                         log_result(f"  [!] Condition for {category_label} met for all files. Ending length {length} early.")
                         stop_early = True
@@ -196,7 +179,7 @@ def run_generic_brute_force(targets, length, charset, category_label):
             except StopIteration:
                 break
     finally:
-        pool.terminate() # Immediately stop all workers
+        pool.terminate()
         pool.join()
         log_result(f"Phase {category_label} (L:{length}) duration: {time.time()-start_time:.2f}s")
 
@@ -211,19 +194,9 @@ def main():
 
     charset_mix = string.ascii_letters + string.digits
     run_generic_brute_force(targets, 4, charset_mix, "Category 3")
-    run_generic_brute_force(targets, 5, charset_mix, "Category 3")
 
     charset_low = string.ascii_lowercase
     run_generic_brute_force(targets, 6, charset_low, "Category 2")
-    run_generic_brute_force(targets, 7, charset_low, "Category 2")
-
-    log_result("\n" + "="*50 + "\nFINAL SUMMARY\n" + "="*50)
-    all_files = sorted(list(set(t['file'] for t in targets)))
-    for f_name in all_files:
-        log_result(f"\nFile: {f_name}")
-        found = [t for t in targets if t['file'] == f_name and t['cracked']]
-        for t in found:
-            log_result(f"  {t['login']:<15} : {t['cracked']} ({', '.join(t['cats_found'])})")
 
 if __name__ == "__main__":
     main()

@@ -27,7 +27,6 @@ class HillCipher(BaseCipher):
             raise ValueError("Key matrix not set.")
             
         text = "".join([c for c in text.upper() if 'A' <= c <= 'Z'])
-        # Pad text if length not divisible by n
         padding_len = (self.n - len(text) % self.n) % self.n
         text += 'X' * padding_len
         
@@ -53,7 +52,6 @@ class HillCipher(BaseCipher):
         if self.key_matrix is None:
             raise ValueError("Key matrix not set.")
 
-        # Calculate inverse matrix modulo 26
         det = int(round(np.linalg.det(self.key_matrix)))
         try:
             det_inv = pow(det, -1, 26)
@@ -64,18 +62,13 @@ class HillCipher(BaseCipher):
         key_matrix_inv = (det_inv * adjugate) % 26
         
         decrypted_text = ""
-        # Process in chunks
         text_filtered = "".join([c for c in text.upper() if 'A' <= c <= 'Z'])
         
-        # Ensure block alignment
         if len(text_filtered) % self.n != 0:
-             # handle partial blocks or warn? 
-             # For standard Hill, ciphertext should be multiple of n.
              pass
 
         for i in range(0, len(text_filtered), self.n):
             chunk = text_filtered[i:i+self.n]
-            # Handle last chunk if partial (shouldn't happen in standard hill)
             if len(chunk) < self.n: continue
             
             vector = np.array([self._char_to_num(c) for c in chunk])
@@ -85,30 +78,23 @@ class HillCipher(BaseCipher):
         return decrypted_text
 
     def crack_cipher(self, ciphertext: str, crib: str) -> str:
-        """
-        crack_cipher attempts to deduce the key matrix using a Known Plaintext Attack.
-        crib: Known plaintext start. Length must be square (4, 9, 16...) to form invertible matrix.
-        """
         crib = "".join([c for c in crib.upper() if 'A' <= c <= 'Z'])
         ciphertext = "".join([c for c in ciphertext.upper() if 'A' <= c <= 'Z'])
         
         l = len(crib)
         n = int(l ** 0.5)
-        
-        # If not perfect square, truncate to nearest square (e.g. 10 -> 9)
+
         if n * n != l:
             if n < 2:
                 raise ValueError(f"Crib too short. Length {l} not usable.")
             new_l = n * n
-            print(f"[!] Warning: Crib length {l} is not a square. Truncating to first {new_l} characters.")
+            print(f"[!] Warning: Crib length {l} is not a square. Shortening to first {new_l} characters.")
             crib = crib[:new_l]
             l = new_l
         
         if len(ciphertext) < l:
             raise ValueError("Ciphertext is shorter than crib.")
 
-        # Construct Plaintext Matrix P (column-wise)
-        # Blocks of n chars form columns
         P_cols = []
         C_cols = []
         
@@ -121,7 +107,6 @@ class HillCipher(BaseCipher):
         P = np.array(P_cols).T
         C = np.array(C_cols).T
         
-        # Invert P mod 26
         try:
             det = int(round(np.linalg.det(P)))
             det_inv = pow(det, -1, 26)
@@ -131,7 +116,6 @@ class HillCipher(BaseCipher):
         adjugate = np.round(det * np.linalg.inv(P)).astype(int) % 26
         P_inv = (det_inv * adjugate) % 26
         
-        # K = C * P_inv
         K = np.dot(C, P_inv) % 26
         
         print(f"[Analysis] Found Key Matrix for n={n}:\n{K}")

@@ -52,33 +52,18 @@ class StreamCipher(BaseCipher):
         return bytes(cipher_text)
 
     def decrypt(self, text: Union[str, bytes], **kwargs) -> bytes:
-        # RC4 decryption is same as encryption
         return self.encrypt(text)
 
-    def crack_cipher(self, text: Union[str, bytes]) -> str:
-        """
-        Brute-force crack the RC4 stream cipher assuming a 6-digit PIN password.
-        Returns the discovered password and initial text if found.
-        """
-        # Convert to bytes if string (though typically ciphertext is bytes)
-        if isinstance(text, str):
-            # If hex or similar, handle conversion? 
-            # For now assume it was passed as correct bytes or raw string
-            try:
-                text_bytes = text.encode('latin1') # Default byte mapping
-            except:
-                text_bytes = text.encode('utf-8')
-        elif isinstance(text, (bytes, bytearray)):
-            text_bytes = text
-        else:
-             # Handle memoryview or other buffer types by converting to bytes
-             text_bytes = bytes(text)
+    def crack_cipher(self, text: bytes) -> str:
+        if not isinstance(text, (bytes, bytearray)):
+            raise TypeError("crack_cipher expects ciphertext as bytes")
+
+        text_bytes = bytes(text)
 
         check_len = min(len(text_bytes), 60)
         cipher_sample = text_bytes[:check_len]
 
         print("[*] Starting brute-force (100000-999999)...")
-        # Optimization: Localize lookups
         get_key = self._get_key
         rc4_init = self._rc4_init
         
@@ -89,7 +74,6 @@ class StreamCipher(BaseCipher):
             passwd = str(pin)
             key = get_key(passwd)
             
-            # Inline RC4 minimal decrypt for speed
             s = list(range(256))
             j = 0
             for i_init in range(256):
@@ -109,8 +93,6 @@ class StreamCipher(BaseCipher):
                 
                 p_byte = cipher_sample[k] ^ s[t]
                 
-                # Heuristic: Check for printable text (ASCII + Slovak chars roughly)
-                # Reject control chars except whitespace
                 if p_byte < 9 or (14 <= p_byte < 32) or p_byte == 127:
                     valid = False
                     break
@@ -118,7 +100,6 @@ class StreamCipher(BaseCipher):
             
             if valid:
                 try:
-                    # Validate utf-8
                     found_text = decrypted_sample.decode('utf-8')
                     self.password = passwd
                     self.key = key

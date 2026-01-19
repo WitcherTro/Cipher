@@ -51,7 +51,6 @@ class VigenereCipher(BaseCipher):
         return "".join(result)
 
     def crack_cipher(self, text: str) -> str:
-        """Attempt to crack the cipher without a key."""
         cleaned_text = "".join([c for c in text.upper() if 'A' <= c <= 'Z'])
         if not cleaned_text:
             return "Error: No valid ciphertext provided."
@@ -59,18 +58,14 @@ class VigenereCipher(BaseCipher):
         best_cand = None
         best_score = -1
 
-        # Check IoC for key lengths 2 to 25
         candidates = []
         for length in range(2, 26):
             avg_ioc = self._calculate_avg_ioc(cleaned_text, length)
-            # Heuristic: IoC closer to 0.06 is better (for English/Slovak)
             candidates.append((length, avg_ioc))
 
         candidates.sort(key=lambda x: x[1], reverse=True)
-        # Take the best length
         key_len = candidates[0][0]
         
-        # Try finding key for both languages
         eng_probs = self.analyzer.get_ordered_probabilities('english')
         svk_probs = self.analyzer.get_ordered_probabilities('slovak')
         
@@ -88,7 +83,6 @@ class VigenereCipher(BaseCipher):
         print(f"[Analysis] Detected Language: {lang}")
         print(f"[Analysis] Found Key: {final_key}")
         
-        # Set the key so the instance is usable
         self.key = final_key
         return self.decrypt(text)
 
@@ -127,8 +121,6 @@ class VigenereCipher(BaseCipher):
         for shift in range(26):
             chi_dist = 0
             for char_code in range(26):
-                # We hypothesise that if we decrypt with 'shift', resulting distribution matches target
-                # Decrypted char 'D' comes from Cipher char 'C' = (D + shift)
                 
                 c_char = chr(((char_code + shift) % 26) + ord('A'))
                 obs = counts.get(c_char, 0)

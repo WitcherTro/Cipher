@@ -21,7 +21,6 @@ class FrequencyAnalyzer:
                 filepath = os.path.join(frequency_dir, filename)
                 with open(filepath, 'r') as file:
                     raw_data = json.load(file)
-                    # Normalize to percentages (0-100)
                     total = sum(raw_data.values())
                     if total > 0:
                         self.frequencies[language] = {
@@ -31,7 +30,6 @@ class FrequencyAnalyzer:
                         self.frequencies[language] = raw_data
 
     def get_ordered_probabilities(self, language: Optional[str] = None) -> list[float]:
-        """Return a list of 26 probabilities (0.0-1.0) for A-Z"""
         if language is None:
             language = self.language
         
@@ -39,20 +37,17 @@ class FrequencyAnalyzer:
         probs = []
         for i in range(26):
             char = chr(ord('A') + i)
-            # stored freqs are 0-100
             probs.append(freqs.get(char, 0.0) / 100.0)
         return probs
 
 
     def set_language(self, language: str) -> None:
-        """Change the analysis language"""
         language = language.lower()
         if language not in self.frequencies:
             raise ValueError(f"Unsupported language: {language}. Available languages: {self.get_supported_languages()}")
         self.language = language
 
     def analyze_text(self, text: str) -> Dict[str, float]:
-        """Analyze letter frequencies in the given text"""
         text = ''.join(c.upper() for c in text if c.isalpha())
         if not text:
             return {}
@@ -66,7 +61,6 @@ class FrequencyAnalyzer:
         }
 
     def compare_to_language(self, frequencies: Dict[str, float]) -> float:
-        """Compare given frequencies to current language pattern"""
         difference = 0.0
         current_freq = self.frequencies[self.language]
         for char, freq in frequencies.items():
@@ -75,5 +69,4 @@ class FrequencyAnalyzer:
         return difference
 
     def get_supported_languages(self) -> list:
-        """Return list of supported languages"""
         return list(self.frequencies.keys())
